@@ -25,11 +25,10 @@ class Model(torch.nn.Module):
         self.lstm_hidden_size_3 = 16
         self.lstm_dropout = 0.1
 
-        self.bi_lstm_1 = torch.nn.LSTM(self.filters_n, self.lstm_hidden_size_1, dropout=self.lstm_dropout, bidirectional=True)
-        self.bi_lstm_2 = torch.nn.LSTM(2 * self.lstm_hidden_size_1, self.lstm_hidden_size_2, dropout=self.lstm_dropout, bidirectional=True)
-        # self.bi_lstm_3 = torch.nn.LSTM(2 * self.lstm_hidden_size_2, self.lstm_hidden_size_3, dropout=self.lstm_dropout, bidirectional=True)
-        self.bi_lstm_3 = torch.nn.LSTM(self.filters_n, self.lstm_hidden_size_3, dropout=self.lstm_dropout, bidirectional=True)
-
+        self.bi_lstm_1 = torch.nn.LSTM(self.filters_n, self.lstm_hidden_size_1, bidirectional=True)
+        self.bi_lstm_2 = torch.nn.LSTM(2 * self.lstm_hidden_size_1, self.lstm_hidden_size_2, bidirectional=True)
+        self.bi_lstm_3 = torch.nn.LSTM(2 * self.lstm_hidden_size_2, self.lstm_hidden_size_3, bidirectional=True)
+        self.dropout = torch.nn.Dropout(self.lstm_dropout)
 
         # SAAF
         self.breakpoints_n = 25
@@ -69,7 +68,11 @@ class Model(torch.nn.Module):
         output, indices = self.maxpool(output)
         indices = indices[self.frames_lookahead, :, :]
 
-        output, _ = self.bi_lstm_3(output.transpose(1, 2))
+        output, _ = self.bi_lstm_1(output.transpose(1, 2))
+        output = self.dropout(output)
+        output, _ = self.bi_lstm_2(output)
+        output = self.dropout(output)
+        output, _ = self.bi_lstm_3(output)
         output = output[self.frames_lookahead, :, :].transpose(0, 1)
         output = self.saaf(output)
 
