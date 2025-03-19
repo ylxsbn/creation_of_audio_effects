@@ -16,10 +16,14 @@ class SE(torch.nn.Module):
 
 
     def forward(self, x):
-        output = self.global_avg_pool(x).transpose(0, 1)
+        output = self.global_avg_pool(x)
+        output = output.transpose(-1, -2)
         output = self.linear_1(output)
         output = self.relu_act(output)
         output = self.linear_2(output)
         output = self.sig_act(output)
+        output = x.transpose(-1, -2) * output
+        output = output.transpose(-1, -2)
+
         return output
 
