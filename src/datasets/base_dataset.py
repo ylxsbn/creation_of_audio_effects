@@ -4,6 +4,8 @@ from typing import List
 
 import torch
 from torch.utils.data import Dataset
+import torchaudio
+
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +20,7 @@ class BaseDataset(Dataset):
     """
 
     def __init__(
-        self, index, limit=None, shuffle_index=False, instance_transforms=None
+        self, index, limit=None, target_sr=16000, max_audio_length=None, shuffle_index=False, instance_transforms=None
     ):
         """
         Args:
@@ -38,6 +40,7 @@ class BaseDataset(Dataset):
         index = self._shuffle_and_limit_index(index, limit, shuffle_index)
         self._index: List[dict] = index
 
+        self.target_sr = target_sr
         self.instance_transforms = instance_transforms
 
     def __getitem__(self, ind):
@@ -56,11 +59,20 @@ class BaseDataset(Dataset):
                 (a single dataset element).
         """
         data_dict = self._index[ind]
-        data_path = data_dict["path"]
-        data_object = self.load_object(data_path)
-        data_label = data_dict["label"]
+        
+        input_audio_path = data_dict["input_path"]
+        output_audio_path = data_dict["output_path"]
 
-        instance_data = {"data_object": data_object, "labels": data_label}
+        input_audio = self.load_audio(input_audio_path)
+        output_audio = self.load_audio(output_audio_path)
+
+        instance_data = {
+            "input_audio": input_audio,
+            "input_audio_path": input_audio_path,
+            "output_audio": output_audio,
+            "output_audio_path": output_audio_path
+        }
+
         instance_data = self.preprocess_data(instance_data)
 
         return instance_data
@@ -71,17 +83,25 @@ class BaseDataset(Dataset):
         """
         return len(self._index)
 
-    def load_object(self, path):
+    def get_spectrogram(self, audio):
         """
-        Load object from disk.
+        Special instance transform with a special key to
+        get spectrogram from audio.
 
         Args:
-            path (str): path to the object.
+            audio (Tensor): original audio.
         Returns:
-            data_object (Tensor):
+            spectrogram (Tensor): spectrogram for the audio.
         """
-        data_object = torch.load(path)
-        return data_object
+        return self.instance_transforms["get_spectrogram"](audio)
+    
+    def load_audio(self, path):
+        audio_tensor, sr = torchaudio.load(path)
+        audio_tensor = audio_tensor[0:1, :]  # remove all channels but the first
+        target_sr = self.target_sr
+        if sr != target_sr:
+            audio_tensor = torchaudio.functional.resample(audio_tensor, sr, target_sr)
+        return audio_tensor
 
     def preprocess_data(self, instance_data):
         """
@@ -103,7 +123,7 @@ class BaseDataset(Dataset):
                     transform_name
                 ](instance_data[transform_name])
         return instance_data
-
+    
     @staticmethod
     def _filter_records_from_dataset(
         index: list,
@@ -139,12 +159,11 @@ class BaseDataset(Dataset):
                 such as label and object path.
         """
         for entry in index:
-            assert "path" in entry, (
-                "Each dataset item should include field 'path'" " - path to audio file."
+            assert "input_path" in entry, (
+                "Each dataset item should include field 'input_path'" " - path to clean audio file."
             )
-            assert "label" in entry, (
-                "Each dataset item should include field 'label'"
-                " - object ground-truth label."
+            assert "output_path" in entry, (
+                "Each dataset item should include field 'output_path'" " - path to processed audio file."
             )
 
     @staticmethod
