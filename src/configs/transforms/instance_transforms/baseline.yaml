@@ -1,0 +1,10 @@
+train:
+  input_audio:
+    _target_: src.transforms.FrameInput
+  output_audio:
+    _target_: src.transforms.FrameOutput
+inference:
+  input_audio:
+    _target_: src.transforms.FrameInput
+  output_audio:
+    _target_: src.transforms.FrameOutput

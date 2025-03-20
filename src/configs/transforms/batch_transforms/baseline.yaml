@@ -1,0 +1,18 @@
+train:
+  input_audio: # name of the tensor on which we apply transform
+    _target_: src.transforms.NormalizeAmplitude
+    mean: 0
+    std: 1
+  output_audio:
+    _target_: src.transforms.NormalizeAmplitude
+    mean: 0
+    std: 1
+inference:
+  input_audio: # name of the tensor on which we apply transform
+    _target_: src.transforms.NormalizeAmplitude
+    mean: 0
+    std: 1
+  output_audio:
+    _target_: src.transforms.NormalizeAmplitude
+    mean: 0
+    std: 1
