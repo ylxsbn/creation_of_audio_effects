@@ -7,9 +7,18 @@ from omegaconf import OmegaConf
 
 from src.datasets.data_utils import get_dataloaders
 from src.trainer import Trainer
-from src.utils.init_utils import set_random_seed, setup_saving_and_logging
+from src.utils.init_utils import set_random_seed, setup_saving_and_logging, ROOT_PATH
+
+from src.audio_mae import models_mae
 
 warnings.filterwarnings("ignore", category=UserWarning)
+
+def prepare_audiomae_model(chkpt_dir=None, arch='mae_vit_base_patch16'):
+    model = getattr(models_mae, arch)(in_chans=1, audio_exp=True, img_size=(1024, 128))
+    if chkpt_dir is not None:
+        checkpoint = torch.load(chkpt_dir, map_location='cpu', weights_only=False)
+        model.load_state_dict(checkpoint['model'], strict=False)
+    return model
 
 
 @hydra.main(version_base=None, config_path="src/configs", config_name="baseline")
@@ -37,8 +46,13 @@ def main(config):
     # batch_transforms should be put on device
     dataloaders, batch_transforms = get_dataloaders(config, device)
 
+
     # build model architecture, then print to console
     model = instantiate(config.model).to(device)
+    # model = prepare_model().to(device)
+    pretrain_path = None
+    if pretrain_path is not None:
+        model.load_pretrained(torch.load(pretrain_path, weights_only=False)["state_dict"])
     logger.info(model)
 
     # get function handles of loss and metrics
