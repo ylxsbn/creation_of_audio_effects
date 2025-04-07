@@ -18,14 +18,14 @@ class FrameInput(torch.nn.Module):
     def forward(self, input):
         if input.dim() == 1:
             input = input.unsqueeze(0)
-    
+
         data = frame_audio(data=input, frame_size=self.frame_size, hop_size=self.hop_size)
         data = torch.nn.functional.pad(data, (0, 0, self.frames_lookahead, self.frames_lookahead))
         data = data.unfold(dimension=1, size=self.frames_n, step=1)
         data = data.squeeze(0)
         data = data.transpose(-1, -2)
         data = data.unsqueeze(2)
-        
+
         return data
 
 

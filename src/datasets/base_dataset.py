@@ -20,7 +20,7 @@ class BaseDataset(Dataset):
     """
 
     def __init__(
-        self, index, limit=None, target_sr=16000, max_audio_length=None, shuffle_index=False, instance_transforms=None
+        self, index, limit=None, target_sr=16000, max_audio_length=2, shuffle_index=False, instance_transforms=None
     ):
         """
         Args:
@@ -43,6 +43,8 @@ class BaseDataset(Dataset):
         self.target_sr = target_sr
         self.instance_transforms = instance_transforms
 
+        self.max_audio_length = max_audio_length
+
     def __getitem__(self, ind):
         """
         Get element from the index, preprocess it, and combine it
@@ -59,18 +61,23 @@ class BaseDataset(Dataset):
                 (a single dataset element).
         """
         data_dict = self._index[ind]
-        
+
         input_audio_path = data_dict["input_path"]
         output_audio_path = data_dict["output_path"]
 
         input_audio = self.load_audio(input_audio_path)
         output_audio = self.load_audio(output_audio_path)
 
+        input_spec = self.get_spectrogram(input_audio)
+        output_spec = self.get_spectrogram(output_audio)
+
         instance_data = {
             "input_audio": input_audio,
-            "input_audio_path": input_audio_path,
+            "input_path": input_audio_path,
             "output_audio": output_audio,
-            "output_audio_path": output_audio_path
+            "output_path": output_audio_path,
+            "input_spec": input_spec,
+            "output_spec": output_spec
         }
 
         instance_data = self.preprocess_data(instance_data)
@@ -93,14 +100,26 @@ class BaseDataset(Dataset):
         Returns:
             spectrogram (Tensor): spectrogram for the audio.
         """
-        return self.instance_transforms["get_spectrogram"](audio)
-    
+        if "get_spectrogram" in self.instance_transforms:
+            return self.instance_transforms["get_spectrogram"](audio)
+        else:
+            return None
+
     def load_audio(self, path):
         audio_tensor, sr = torchaudio.load(path)
-        audio_tensor = audio_tensor[0:1, :]  # remove all channels but the first
+
+        # if channels_n > 1, calculate mean of channels
+        if audio_tensor.shape[0] > 1:
+            audio = torch.mean(audio, dim=0, keepdim=True)
+
+        audio_tensor = audio_tensor[:, :self.max_audio_length * sr]
+
         target_sr = self.target_sr
         if sr != target_sr:
             audio_tensor = torchaudio.functional.resample(audio_tensor, sr, target_sr)
+
+        audio_tensor = audio_tensor / audio_tensor.abs().max()
+
         return audio_tensor
 
     def preprocess_data(self, instance_data):
@@ -119,33 +138,12 @@ class BaseDataset(Dataset):
         """
         if self.instance_transforms is not None:
             for transform_name in self.instance_transforms.keys():
+                if transform_name == "get_spectrogram":
+                    continue
                 instance_data[transform_name] = self.instance_transforms[
                     transform_name
                 ](instance_data[transform_name])
         return instance_data
-    
-    @staticmethod
-    def _filter_records_from_dataset(
-        index: list,
-    ) -> list:
-        """
-        Filter some of the elements from the dataset depending on
-        some condition.
-
-        This is not used in the example. The method should be called in
-        the __init__ before shuffling and limiting.
-
-        Args:
-            index (list[dict]): list, containing dict for each element of
-                the dataset. The dict has required metadata information,
-                such as label and object path.
-        Returns:
-            index (list[dict]): list, containing dict for each element of
-                the dataset that satisfied the condition. The dict has
-                required metadata information, such as label and object path.
-        """
-        # Filter logic
-        pass
 
     @staticmethod
     def _assert_index_is_valid(index):

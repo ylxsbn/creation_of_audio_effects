@@ -1,7 +1,7 @@
 import torch
+from src.utils.audio_utils import reconstruct_audio
 
-
-class MaeLoss(torch.nn.Module):
+class MAELoss(torch.nn.Module):
     """
     Mean absolute error loss
     """
@@ -10,5 +10,7 @@ class MaeLoss(torch.nn.Module):
         super().__init__()
         self.loss = torch.nn.L1Loss()
 
-    def forward(self, input_audio: torch.Tensor, output_audio: torch.Tensor, **batch):
-        return {"loss": self.loss(input_audio, output_audio)}
+    def forward(self, output_audio: torch.Tensor, predicted_audio, **batch):
+        output_audio = reconstruct_audio(output_audio)
+        predicted_audio = reconstruct_audio(predicted_audio)
+        return {"loss": self.loss(output_audio, predicted_audio)}
