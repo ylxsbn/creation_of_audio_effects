@@ -1,3 +1,4 @@
 _target_: src.model.PretrainModel
 channels_n: 1
 frame_size: 4096
+filters_n: 32

@@ -1,15 +1,39 @@
 train:
-  _target_: src.datasets.IDMTDataset
-  part: "train"
-  effect_type: "NoFX"
-  instance_transforms: ${transforms.instance_transforms.train}
+  _target_: torch.utils.data.ConcatDataset
+  datasets:
+    - _target_: src.datasets.IDMTDataset
+      part: "train"
+      effect_type: "NoFX"
+      supervised: False
+      instance_transforms: ${transforms.instance_transforms.train}
+    - _target_: src.datasets.IDMTDataset
+      part: "train"
+      effect_type: "Chorus"
+      supervised: False
+      instance_transforms: ${transforms.instance_transforms.train}
 val:
-  _target_: src.datasets.IDMTDataset
-  part: "val"
-  effect_type: "NoFX"
-  instance_transforms: ${transforms.instance_transforms.train}
+  _target_: torch.utils.data.ConcatDataset
+  datasets:
+    - _target_: src.datasets.IDMTDataset
+      part: "val"
+      effect_type: "NoFX"
+      supervised: False
+      instance_transforms: ${transforms.instance_transforms.train}
+    - _target_: src.datasets.IDMTDataset
+      part: "val"
+      effect_type: "Chorus"
+      supervised: False
+      instance_transforms: ${transforms.instance_transforms.train}
 test:
-  _target_: src.datasets.IDMTDataset
-  part: "test"
-  effect_type: "NoFX"
-  instance_transforms: ${transforms.instance_transforms.train}
+  _target_: torch.utils.data.ConcatDataset
+  datasets:
+    - _target_: src.datasets.IDMTDataset
+      part: "test"
+      effect_type: "NoFX"
+      supervised: False
+      instance_transforms: ${transforms.instance_transforms.train}
+    - _target_: src.datasets.IDMTDataset
+      part: "test"
+      effect_type: "Chorus"
+      supervised: False
+      instance_transforms: ${transforms.instance_transforms.train}

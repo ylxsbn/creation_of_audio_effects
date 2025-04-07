@@ -1,18 +1,18 @@
 train:
-  input_audio: # name of the tensor on which we apply transform
+  input_spec:
     _target_: src.transforms.Normalize1D
     mean: 0
     std: 1
-  output_audio:
+  output_spec:
     _target_: src.transforms.Normalize1D
     mean: 0
     std: 1
 inference:
-  input_audio: # name of the tensor on which we apply transform
+  input_spec:
     _target_: src.transforms.Normalize1D
     mean: 0
     std: 1
-  output_audio:
+  output_spec:
     _target_: src.transforms.Normalize1D
     mean: 0
     std: 1

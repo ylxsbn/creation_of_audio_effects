@@ -1,0 +1,4 @@
+defaults:
+  - batch_transforms: audiomae
+  - instance_transforms: audiomae
+  - _self_
