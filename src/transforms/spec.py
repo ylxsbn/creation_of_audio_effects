@@ -3,7 +3,7 @@ from torchaudio.transforms import Spectrogram
 
 
 class GetSpectrogram(torch.nn.Module):
-    """STFT-spectrogram transform, returns the magnitude**2 of the STFT transform"""
+    """STFT-spectrogram transform, returns magnitude**2 of the STFT transform"""
 
     def __init__(self):
         super().__init__()

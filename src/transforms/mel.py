@@ -3,7 +3,7 @@ from torchaudio.compliance import kaldi
 
 
 class GetMelSpectrogram(torch.nn.Module):
-    "Mel-spectrogram transform with parametrs from  the original Audio-MAE paper: https://arxiv.org/pdf/2207.06405"
+    "Mel-spectrogram transform with parameters from the original Audio-MAE paper: https://arxiv.org/pdf/2207.06405"
 
     def __init__(self):
         super().__init__()
@@ -13,7 +13,7 @@ class GetMelSpectrogram(torch.nn.Module):
         self.expected_frames = 1024
 
     def forward(self, input_audio):
-        """Input audio must has sr=16000 and will be tranformet to match the 1024 x 128 shape"""
+        """Input audio must has sr=16000 and will be tranformed to match the 1024 x 128 shape"""
 
         mel_spectrogram = kaldi.fbank(
             input_audio,

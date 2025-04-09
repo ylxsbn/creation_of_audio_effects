@@ -18,11 +18,11 @@ git clone https://github.com/ylxsbn/creation_of_audio_effects.git
 pip install -r creation_of_audio_effects/requirements.txt
 ```
 
-If you want to use the Audio-MAE model, you should download it from the [original repository](https://github.com/facebookresearch/AudioMAE) and place it in the src/audio_mae folder.
+If you want to use the Audio-MAE model, you should also follow the installation instructions from the [original repository](https://github.com/facebookresearch/AudioMAE).
 
 ### Preparing data
 
-Download the IDMT-SMT-Audio-Effects dataset from [here](https://zenodo.org/records/7544032) and place it in the data/idmt-smt-dataset folder.
+Download the **IDMT-SMT-Audio-Effects** dataset from [here](https://zenodo.org/records/7544032) and place it in the `data/idmt-smt-dataset` folder.
 
 ## Baseline model
 
@@ -44,10 +44,10 @@ To train a model specify the desired effect in dataset config and run the follow
 python train.py -cn=baseline
 ```
 
-If you want to use the pretrained weights you should specify the pretrain_path in train.py script.
+If you want to use the pretrained weights you should specify the `pretrain_path` in train.py script.
 
 ### Inference
-To evaluate the model you can run the inference:
+To evaluate the model you should configure the inference config and run the inference:
 ```bash
 python inference.py
 ```
@@ -56,7 +56,7 @@ python inference.py
 
 ### Pipeline
 
-Firstly, you should modify the Audio-MAE forward function:
+Firstly, be sure to use the modified Audio-MAE forward function:
 
 ```python
 def forward(self, input_spec, **batch):
@@ -95,15 +95,15 @@ python inference.py
 
 Checkpoints for chorus, tremolo and distortion audio effects are available at [here](https://drive.google.com/drive/folders/11vcegwz2z4I4xHN677P1_ZX0ST45x0Em?usp=drive_link)
 
-You can download and put them in ./saved/model_name folder.
+You can download and put them in `saved/model_name` folder.
 
-You can specify the "resume_from" option in config or "pretrain_path" in script to use these weights.
+You can specify the `resume_from` option in config or `pretrain_path` in script to use these weights.
 
 ## Credits
 
 
 This repository utilizes the [pytorch-template](https://github.com/Blinorot/pytorch_project_template/) and adapts some code from 
-[peneuralfx](https://github.com/ytsrt66589/pyneuralfx) and [facebookresearch](https://github.com/facebookresearch/) for the purpose of creating audio effects.
+[pyneuralfx](https://github.com/ytsrt66589/pyneuralfx) and [facebookresearch](https://github.com/facebookresearch/) for the purpose of creating audio effects.
 
 The lightweight model is based on [General-purpose](https://arxiv.org/pdf/1905.06148) architecture that was proposed by Martinez et al.
 

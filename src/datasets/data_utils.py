@@ -2,8 +2,8 @@ from itertools import repeat
 
 from hydra.utils import instantiate
 
-from src.datasets.collate import collate_fn
 from src.utils.init_utils import set_worker_seed
+from src.datasets import collate_baseline, collate_audiomae
 
 
 def inf_loop(dataloader):
@@ -65,10 +65,15 @@ def get_dataloaders(config, device):
     # dataset partitions init
     datasets = instantiate(config.datasets)  # instance transforms are defined inside
 
+    collate_fn = collate_baseline if config.dataloader.collate_fn == "baseline" else collate_audiomae
+    print(config.dataloader.collate_fn)
+
     # dataloaders init
     dataloaders = {}
     for dataset_partition in config.datasets.keys():
         dataset = datasets[dataset_partition]
+
+        print(dataset)
 
         assert config.dataloader.batch_size <= len(dataset), (
             f"The batch size ({config.dataloader.batch_size}) cannot "
