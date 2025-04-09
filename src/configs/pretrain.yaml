@@ -5,7 +5,6 @@ defaults:
   - datasets: pretrain
   - dataloader: baseline
   - transforms: pretrain
-  - effect: "Chorus"
   - _self_
 optimizer:
   _target_: torch.optim.Adam
@@ -15,16 +14,16 @@ lr_scheduler:
   gamma: 0.5
   step_size: 82500
 loss_function:
-  _target_: src.loss.MaeLoss
+  _target_: src.loss.MRSTFTLoss
 trainer:
   log_step: 50
   n_epochs: 30
-  device_tensors: ["input_audio", "output_audio"] # which tensors should be on device (ex. GPU)
-  resume_from: null # null or path to the checkpoint dir with *.pth and config.yaml
-  device: auto # device name or "auto"
-  override: True # if True, will override the previous run with the same name
-  monitor: "off" # "off" or "max/min metric_name", i.e. our goal is to maximize/minimize metric
-  save_period: 5 # checkpoint each save_period epochs in addition to the best epoch
-  early_stop: ${trainer.n_epochs} # epochs for early stopping
+  device_tensors: ["input_audio", "output_audio"]
+  resume_from: null
+  device: auto
+  override: True
+  monitor: "off"
+  save_period: 5
+  early_stop: ${trainer.n_epochs}
   save_dir: "saved"
   seed: 1

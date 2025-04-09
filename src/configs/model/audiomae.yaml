@@ -1,0 +1,3 @@
+_target_: src.model.mae_vit_base_patch16
+in_chans: 1
+audio_exp: True

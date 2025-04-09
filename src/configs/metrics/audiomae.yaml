@@ -1,7 +1,13 @@
 device: "auto"
 train: # metrics that are calculated during training
-  - _target_: src.metrics.MeanSquaredErrorMetric
-    name: "MSE metric"
+  - _target_: src.metrics.EnergyNormalizedMAE
+    name: "MAE"
 inference: # metrics that are calculated during inference (eval)
-  - _target_: src.metrics.MeanSquaredErrorMetric
-    name: "MSE metric"
+  - _target_: src.metrics.EnergyNormalizedMAE
+    name: "MAE"
+  - _target_: src.metrics.SpectralCentroid
+    name: "SC"
+  - _target_: src.metrics.CrestFactor
+    name: "CF"
+  - _target_: src.metrics.RMSEnergy
+    name: "RMS"
