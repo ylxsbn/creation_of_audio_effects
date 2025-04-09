@@ -51,6 +51,6 @@ def reconstruct_from_spectrogram(spec, phase, real_output_length=32000):
                          window=window,
                          normalized=False
                          )
-
-    output = output[:real_output_length]
+    # cropping the output signal to match the input signal shape
+    output = output[:real_output_length].unsqueeze(0)
     return output
